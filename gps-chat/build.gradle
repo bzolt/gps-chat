@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'org.springframework.boot'
+
+group = 'org.gpschat'
+version = '1.0.0'
+
+description = """gps-chat"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+
+repositories {
+        
+     mavenCentral()
+}
+dependencies {
+	def springBootVersion = '1.4.2.RELEASE'
+	def springMongodbVersion = '1.9.4.RELEASE'
+	def springfoxVersion = '2.6.1'
+	def jacksonVersion = '2.8.5'
+
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-data-mongodb"
+    compile "org.springframework.boot:spring-boot-starter-security"
+    
+    compile "org.springframework.boot:spring-boot-devtools"
+    
+    //compile "org.springframework.data:spring-data-mongodb:$springMongodbVersion"
+    
+    compile "io.springfox:springfox-swagger2:$springfoxVersion"
+    compile "io.springfox:springfox-swagger-ui:$springfoxVersion"
+    
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"    
+    compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+	compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+	compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    
+    
+    
+    compile(group: 'org.springframework.boot', name: 'spring-boot-starter-tomcat', version:"$springBootVersion") {
+       /* This dependency was originally in the Maven provided scope, but the project was not of type war.
+       This behavior is not yet supported by Gradle, so this dependency has been converted to a compile dependency.
+       Please review and delete this closure when resolved. */
+    }
+}
