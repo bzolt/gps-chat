@@ -24,12 +24,9 @@ public class RegisterApiController implements RegisterApi
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
-	// @ExceptionHandler(DuplicateEmailAddressException.class)
-	// public ResponseEntity<User> duplicateEmail()
-	// {
-	// User user = new User();
-	// user.setEmail("asd");
-	// user.setFullName("asd");
-	// return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
-	// }
+	@Override
+	public ResponseEntity<Void> loginGet()
+	{
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }
