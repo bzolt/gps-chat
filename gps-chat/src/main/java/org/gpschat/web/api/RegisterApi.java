@@ -33,4 +33,7 @@ public interface RegisterApi
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "/login", method = RequestMethod.GET)
+	public ResponseEntity<Void> loginGet();
+
 }
