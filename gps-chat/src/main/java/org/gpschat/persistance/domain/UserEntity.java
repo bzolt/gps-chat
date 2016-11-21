@@ -1,8 +1,12 @@
 package org.gpschat.persistance.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @TypeAlias("user")
@@ -10,12 +14,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class UserEntity
 {
 	@Id
-	private String			id;
+	private String id;
 
-	private String			userName;
-	private String			fullName;
-	private String			email;
-	private GeoJsonPoint	location;
+	private String				userName;
+	private String				fullName;
+	private String				email;
+	private GeoJsonPoint		location;
+	private int					viewDistance;
+	@DBRef(lazy = true)
+	private List<UserEntity>	blockedUsers	= new ArrayList<>();
 
 	public String getId()
 	{
@@ -65,6 +72,26 @@ public class UserEntity
 	public void setLocation(GeoJsonPoint location)
 	{
 		this.location = location;
+	}
+
+	public int getViewDistance()
+	{
+		return viewDistance;
+	}
+
+	public void setViewDistance(int viewDistance)
+	{
+		this.viewDistance = viewDistance;
+	}
+
+	public List<UserEntity> getBlockedUsers()
+	{
+		return blockedUsers;
+	}
+
+	public void addBlockedUser(UserEntity blockedUser)
+	{
+		this.blockedUsers.add(blockedUser);
 	}
 
 	@Override

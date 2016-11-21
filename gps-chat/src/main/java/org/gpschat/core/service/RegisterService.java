@@ -1,9 +1,12 @@
 package org.gpschat.core.service;
 
+import org.gpschat.core.constants.ChatConstants;
 import org.gpschat.core.constants.SecurityConstants;
 import org.gpschat.core.exceptions.DuplicateEmailAddressException;
 import org.gpschat.persistance.domain.Login;
+import org.gpschat.persistance.domain.UserEntity;
 import org.gpschat.persistance.repositories.LoginRepository;
+import org.gpschat.persistance.repositories.UserEntityRepository;
 import org.gpschat.web.data.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,7 +16,9 @@ import org.springframework.stereotype.Service;
 public class RegisterService
 {
 	@Autowired
-	LoginRepository loginRepository;
+	LoginRepository			loginRepository;
+	@Autowired
+	UserEntityRepository	userEntityRepository;
 
 	public void registerUser(User user)
 	{
@@ -22,7 +27,7 @@ public class RegisterService
 			throw new DuplicateEmailAddressException();
 		}
 		createLogin(user);
-		// TODO Create UserEntity
+		createUserEntity(user);
 	}
 
 	private void createLogin(User user)
@@ -35,5 +40,15 @@ public class RegisterService
 		login.setPassword(encoder.encode(user.getPassword()));
 		login.setAuthorities(new String[] { "user" });
 		loginRepository.save(login);
+	}
+
+	private void createUserEntity(User user)
+	{
+		UserEntity entity = new UserEntity();
+		entity.setUserName(user.getUsername());
+		entity.setFullName(user.getFullName());
+		entity.setEmail(user.getEmail());
+		entity.setViewDistance(ChatConstants.DEFAULT_VIEW_DISTANCE);
+		userEntityRepository.save(entity);
 	}
 }

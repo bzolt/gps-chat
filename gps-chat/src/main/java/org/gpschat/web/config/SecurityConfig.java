@@ -3,6 +3,7 @@ package org.gpschat.web.config;
 import org.gpschat.core.constants.SecurityConstants;
 import org.gpschat.persistance.repositories.LoginRepository;
 import org.gpschat.persistance.repositories.MongoPersistentRememberMeTokenRepository;
+import org.gpschat.persistance.repositories.UserEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -17,13 +18,15 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter
 {
-	private static final String					TOKEN_KEY	= "asdasfjhakjia";
+	private static final String TOKEN_KEY = "asdasfjhakjia";
 
 	@Autowired
-	LoginRepository								loginReporitory;
+	LoginRepository			loginReporitory;
+	@Autowired
+	UserEntityRepository	userEntityRepository;
 
 	@Autowired
-	MongoPersistentRememberMeTokenRepository	mongoPersistentRememberMeTokenRepository;
+	MongoPersistentRememberMeTokenRepository mongoPersistentRememberMeTokenRepository;
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception
@@ -47,6 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
 	{
 		MongoUserDetailsService service = new MongoUserDetailsService();
 		service.setLoginReporitory(loginReporitory);
+		service.setUserEntityRepository(userEntityRepository);
 		return service;
 	}
 

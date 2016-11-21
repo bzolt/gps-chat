@@ -1,8 +1,5 @@
 package org.gpschat.swagger;
 
-import org.gpschat.persistance.repositories.LoginRepository;
-import org.gpschat.persistance.repositories.UserEntityRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
@@ -19,12 +16,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableMongoRepositories(basePackages = "org.gpschat")
 public class Swagger2SpringBoot implements CommandLineRunner
 {
-	@Autowired
-	private LoginRepository			loginRepository;
-
-	@Autowired
-	private UserEntityRepository	userEntityRepository;
-
 	@Override
 	public void run(String... arg0) throws Exception
 	{
@@ -32,32 +23,6 @@ public class Swagger2SpringBoot implements CommandLineRunner
 		{
 			throw new ExitException();
 		}
-		//
-		// loginRepository.deleteAll();
-		//
-		// // save a couple of customers
-		// loginRepository.save(new Login("Alice", "Smith"));
-		// UserEntity asd = new UserEntity();
-		// asd.setEmail("asd");
-		// asd.setFullName("asd");
-		// asd.setUserName("asd");
-		// userEntityRepository.save(asd);
-		// Login fgh = new Login("Bob", "Smith");
-		// fgh.setAsd(asd);
-		// loginRepository.save(fgh);
-		//
-		// // fetch all customers
-		// System.out.println("Customers found with findAll():");
-		// System.out.println("-------------------------------");
-		// for (Login Login : loginRepository.findAll()) {
-		// System.out.println(Login);
-		// }
-		// System.out.println();
-		//
-		// // fetch an individual Login
-		// System.out.println("Login found with findByFirstName('Alice'):");
-		// System.out.println("--------------------------------");
-		// System.out.println(loginRepository.findByEmail("Alice"));
 	}
 
 	public static void main(String[] args) throws Exception

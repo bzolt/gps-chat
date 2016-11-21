@@ -1,11 +1,12 @@
 package org.gpschat.web.api;
 
-import java.math.BigDecimal;
 import java.util.List;
 
+import org.gpschat.web.config.CustomUserDetails;
 import org.gpschat.web.data.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,8 @@ public interface UsersApi
 	@RequestMapping(value = "/users/block/{id}", produces = {
 			"application/json" }, method = RequestMethod.POST)
 	default ResponseEntity<Void> usersBlockIdPost(
-			@ApiParam(value = "", required = true) @PathVariable("id") BigDecimal id)
+			@ApiParam(value = "", required = true) @PathVariable("id") String id,
+			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		// do some magic!
 		return new ResponseEntity<Void>(HttpStatus.OK);
@@ -59,7 +61,7 @@ public interface UsersApi
 	@RequestMapping(value = "/users/{id}", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	default ResponseEntity<User> usersIdGet(
-			@ApiParam(value = "", required = true) @PathVariable("id") BigDecimal id)
+			@ApiParam(value = "", required = true) @PathVariable("id") String id)
 	{
 		// do some magic!
 		return new ResponseEntity<User>(HttpStatus.OK);
@@ -71,7 +73,7 @@ public interface UsersApi
 			@ApiResponse(code = 200, message = "The currently logged in user.", response = User.class) })
 	@RequestMapping(value = "/users/me", produces = {
 			"application/json" }, method = RequestMethod.GET)
-	default ResponseEntity<User> usersMeGet()
+	default ResponseEntity<User> usersMeGet(@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		// do some magic!
 		return new ResponseEntity<User>(HttpStatus.OK);
@@ -85,7 +87,8 @@ public interface UsersApi
 	@RequestMapping(value = "/users/me", produces = {
 			"application/json" }, method = RequestMethod.PUT)
 	default ResponseEntity<Void> usersMePut(
-			@ApiParam(value = "", required = true) @RequestBody User user)
+			@ApiParam(value = "", required = true) @RequestBody User user,
+			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		// do some magic!
 		return new ResponseEntity<Void>(HttpStatus.OK);

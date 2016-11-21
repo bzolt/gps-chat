@@ -23,10 +23,4 @@ public class RegisterApiController implements RegisterApi
 
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
-
-	@Override
-	public ResponseEntity<Void> loginGet()
-	{
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
 }

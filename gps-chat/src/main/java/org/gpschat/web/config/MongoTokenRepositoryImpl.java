@@ -30,8 +30,7 @@ public class MongoTokenRepositoryImpl implements PersistentTokenRepository
 		MongoPersistentRememberMeToken newToken = new MongoPersistentRememberMeToken(
 				token.getUsername(), series, tokenValue, new Date());
 
-		// TODO commented for easier testing
-		// repository.delete(token);
+		repository.delete(token);
 
 		repository.insert(new MongoPersistentRememberMeToken(newToken));
 	}
