@@ -1,0 +1,7 @@
+#Wed Nov 23 16:21:46 CET 2016
+base.0=E\:\\bme\\Szoftarch\\GPSchat\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_c09de0cfe46a882f41bcf33d27178a498b829845
+renamed.1=classes.dex
+renamed.0=classes2.dex
+file.1=E\:\\bme\\Szoftarch\\GPSchat\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_e17881496ad121f7d8a54b24170762b7a34f6db6\\classes.dex
+base.1=E\:\\bme\\Szoftarch\\GPSchat\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_e17881496ad121f7d8a54b24170762b7a34f6db6
+file.0=E\:\\bme\\Szoftarch\\GPSchat\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_c09de0cfe46a882f41bcf33d27178a498b829845\\classes.dex

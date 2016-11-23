@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "E:\\bme\\Szoftarch\\GPSchat\\app\\build\\intermediates\\res\\merged\\debug\\menu\\main.xml",
+        "source": "E:\\bme\\Szoftarch\\GPSchat\\app\\src\\main\\res\\menu\\main.xml"
+    },
+    {
+        "merged": "E:\\bme\\Szoftarch\\GPSchat\\app\\build\\intermediates\\res\\merged\\debug\\menu\\activity_main_drawer.xml",
+        "source": "E:\\bme\\Szoftarch\\GPSchat\\app\\src\\main\\res\\menu\\activity_main_drawer.xml"
+    }
+]

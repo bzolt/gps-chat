@@ -1,0 +1,42 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="hu.szoftarch.hf.gpschat.fragments.SearchUsersFragment">
+
+
+    <FrameLayout
+        android:id="@+id/search_user_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <hu.szoftarch.hf.gpschat.DelayAutoCompleteTextView
+            android:id="@+id/user_search_autocomplete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="flagNoExtractUi|actionSearch"
+            android:inputType="textCapSentences"
+            android:paddingRight="@dimen/text_margin"
+            android:dropDownWidth="60dp"
+            android:completionThreshold="2"
+            android:dropDownAnchor="@id/search_user_frame"/>
+
+        <ProgressBar
+            android:id="@+id/user_search_loading_indicator"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <ListView
+        android:clickable="true"
+        android:focusable="true"
+        android:id="@android:id/list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_user_frame"></ListView>
+
+</RelativeLayout>
