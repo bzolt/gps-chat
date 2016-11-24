@@ -2,6 +2,9 @@ package org.gpschat.web.api;
 
 import java.util.List;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.gpschat.core.service.UserService;
 import org.gpschat.web.config.CustomUserDetails;
 import org.gpschat.web.data.User;
@@ -52,6 +55,21 @@ public class UsersApiController implements UsersApi
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		userService.updateUser(user, activeUser.getEntity());
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<Void> logoutPost(HttpServletRequest httpServletRequest)
+	{
+		try
+		{
+			httpServletRequest.logout();
+		}
+		catch (ServletException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

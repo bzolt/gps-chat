@@ -11,6 +11,7 @@ import org.gpschat.persistance.domain.UserEntity;
 import org.gpschat.persistance.repositories.LoginRepository;
 import org.gpschat.persistance.repositories.UserEntityRepository;
 import org.gpschat.web.data.User;
+import org.gpschat.web.data.ViewDistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,19 +82,21 @@ public class UserService
 		}
 	}
 
-	public int getViewDistance(UserEntity user)
+	public ViewDistance getViewDistance(UserEntity user)
 	{
-		return user.getViewDistance();
+		ViewDistance distance = new ViewDistance();
+		distance.setValue(user.getViewDistance());
+		return distance;
 	}
 
-	public void setViewDistance(Integer distance, UserEntity user)
+	public void setViewDistance(ViewDistance distance, UserEntity user)
 	{
-		if (distance == null || distance <= 0)
+		if (distance == null || distance.getValue() <= 0)
 		{
 			throw new InvalidValueException();
 		}
 
-		user.setViewDistance(distance);
+		user.setViewDistance(distance.getValue());
 	}
 
 	private User convertToUser(UserEntity entity)

@@ -15,16 +15,16 @@ import io.swagger.annotations.ApiModelProperty;
 public class Message
 {
 	@JsonProperty("senderId")
-	private String			senderId		= null;
+	private String senderId = null;
 
 	@JsonProperty("senderUserName")
-	private String			senderUserName	= null;
+	private String senderUserName = null;
 
 	@JsonProperty("text")
-	private String			text			= null;
+	private String text = null;
 
 	@JsonProperty("dateTime")
-	private OffsetDateTime	dateTime		= null;
+	private OffsetDateTime dateTime = null;
 
 	public Message senderId(String senderId)
 	{

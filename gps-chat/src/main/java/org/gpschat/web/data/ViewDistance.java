@@ -1,7 +1,5 @@
 package org.gpschat.web.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,41 +7,35 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
- * UserIdList
+ * ViewDistance
  */
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-11-22T11:02:32.119Z")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-11-22T14:57:45.286Z")
 
-public class UserIdList
+public class ViewDistance
 {
-	@JsonProperty("ids")
-	private List<String> ids = new ArrayList<String>();
+	@JsonProperty("value")
+	private Integer value = null;
 
-	public UserIdList ids(List<String> ids)
+	public ViewDistance value(Integer value)
 	{
-		this.ids = ids;
-		return this;
-	}
-
-	public UserIdList addIdsItem(String idsItem)
-	{
-		this.ids.add(idsItem);
+		this.value = value;
 		return this;
 	}
 
 	/**
-	 * Get ids
+	 * Get value
 	 * 
-	 * @return ids
+	 * @return value
 	 **/
 	@ApiModelProperty(value = "")
-	public List<String> getIds()
+	public Integer getValue()
 	{
-		return ids;
+		return value;
 	}
 
-	public void setIds(List<String> ids)
+	public void setValue(Integer value)
 	{
-		this.ids = ids;
+		this.value = value;
 	}
 
 	@Override
@@ -57,23 +49,23 @@ public class UserIdList
 		{
 			return false;
 		}
-		UserIdList userIdList = (UserIdList) o;
-		return Objects.equals(this.ids, userIdList.ids);
+		ViewDistance viewDistance = (ViewDistance) o;
+		return Objects.equals(this.value, viewDistance.value);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(ids);
+		return Objects.hash(value);
 	}
 
 	@Override
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("class UserIdList {\n");
+		sb.append("class ViewDistance {\n");
 
-		sb.append("    ids: ").append(toIndentedString(ids)).append("\n");
+		sb.append("    value: ").append(toIndentedString(value)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

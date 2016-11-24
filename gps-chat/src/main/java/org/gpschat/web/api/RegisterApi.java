@@ -1,7 +1,6 @@
 package org.gpschat.web.api;
 
 import org.gpschat.web.data.User;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +22,9 @@ public interface RegisterApi
 			"user", })
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Registration successful.", response = Void.class),
-			@ApiResponse(code = 400, message = "Bad format.", response = Void.class) })
-	@RequestMapping(value = "/register", produces = {
+			@ApiResponse(code = 400, message = "Bad format. Email already registered.", response = Void.class) })
+	@RequestMapping(value = "/register", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.POST)
-	default ResponseEntity<Void> registerPost(
-			@ApiParam(value = "", required = true) @RequestBody User user)
-	{
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.OK);
-	}
+	ResponseEntity<Void> registerPost(
+			@ApiParam(value = "", required = true) @RequestBody User user);
 }
