@@ -22,9 +22,12 @@ targetCompatibility = 1.8
 
 
 repositories {
-        
-     mavenCentral()
+	maven {
+        url "https://maven.atlassian.com/3rdparty/"
+    }
+	mavenCentral()
 }
+
 dependencies {
 	def springBootVersion = '1.4.2.RELEASE'
 	def springMongodbVersion = '1.9.4.RELEASE'
@@ -34,6 +37,9 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-web"
     compile "org.springframework.boot:spring-boot-starter-data-mongodb"
     compile "org.springframework.boot:spring-boot-starter-security"
+    compile "org.springframework.integration:spring-integration-core"
+    compile "org.springframework.integration:spring-integration-java-dsl"
+    compile "org.springframework.integration:spring-integration-xmpp"    
     
     compile "org.springframework.boot:spring-boot-devtools"
     
@@ -42,10 +48,13 @@ dependencies {
     compile "io.springfox:springfox-swagger2:$springfoxVersion"
     compile "io.springfox:springfox-swagger-ui:$springfoxVersion"
     
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"    
-    compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
-	compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-	compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"    
+    compile "com.fasterxml.jackson.core:jackson-core"
+	compile "com.fasterxml.jackson.core:jackson-databind"
+	compile "com.fasterxml.jackson.core:jackson-annotations"
+	
+	compile "org.igniterealtime.smack:smack-experimental:4.1.9"
+	
     
     
     

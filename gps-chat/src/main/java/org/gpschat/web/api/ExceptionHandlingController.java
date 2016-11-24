@@ -7,7 +7,7 @@ import org.gpschat.core.exceptions.InvalidValueException;
 import org.gpschat.core.exceptions.UserIsBlockedException;
 import org.gpschat.core.exceptions.UserNotFoundException;
 import org.gpschat.core.exceptions.UserNotPartOfChatException;
-import org.gpschat.web.data.User;
+import org.gpschat.web.data.ErrorData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,71 +19,67 @@ public class ExceptionHandlingController
 {
 	@ExceptionHandler(DuplicateEmailAddressException.class)
 	@ResponseBody
-	public ResponseEntity<User> duplicateEmail()
+	public ResponseEntity<ErrorData> duplicateEmail()
 	{
-		User user = new User();
-		user.setEmail("qwe");
-		user.setFullName("qweasd");
-		return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+		ErrorData error = new ErrorData();
+		error.error(ErrorData.ErrorEnum.DUPLICATE_EMAIL)
+				.message("This email is already in the database");
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(UserNotFoundException.class)
 	@ResponseBody
-	public ResponseEntity<User> userNotFound()
+	public ResponseEntity<ErrorData> userNotFound()
 	{
-		User user = new User();
-		user.setEmail("qwe");
-		user.setFullName("qweasd");
-		return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
+		ErrorData error = new ErrorData();
+		error.error(ErrorData.ErrorEnum.USER_NOT_FOUND).message("User not found.");
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 	}
 
 	@ExceptionHandler(InvalidUserException.class)
 	@ResponseBody
-	public ResponseEntity<User> invalidUser()
+	public ResponseEntity<ErrorData> invalidUser()
 	{
-		User user = new User();
-		user.setEmail("qwe");
-		user.setFullName("qweasd");
-		return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+		ErrorData error = new ErrorData();
+		error.error(ErrorData.ErrorEnum.INVALID_USER).message("You can't block yourself.");
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(InvalidValueException.class)
 	@ResponseBody
-	public ResponseEntity<User> invalidValue()
+	public ResponseEntity<ErrorData> invalidValue()
 	{
-		User user = new User();
-		user.setEmail("qwe");
-		user.setFullName("qweasd");
-		return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+		ErrorData error = new ErrorData();
+		error.error(ErrorData.ErrorEnum.INVALID_VALUE).message("Bad format.");
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(UserIsBlockedException.class)
 	@ResponseBody
-	public ResponseEntity<User> userIsBlocked()
+	public ResponseEntity<ErrorData> userIsBlocked()
 	{
-		User user = new User();
-		user.setEmail("qwe");
-		user.setFullName("qweasd");
-		return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+		ErrorData error = new ErrorData();
+		error.error(ErrorData.ErrorEnum.USER_IS_BLOCKED)
+				.message("One or more user has blocked you.");
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(ChatNotFoundException.class)
 	@ResponseBody
-	public ResponseEntity<User> chatNotFound()
+	public ResponseEntity<ErrorData> chatNotFound()
 	{
-		User user = new User();
-		user.setEmail("qwe");
-		user.setFullName("qweasd");
-		return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
+		ErrorData error = new ErrorData();
+		error.error(ErrorData.ErrorEnum.CHAT_NOT_FOUND).message("Chat not found.");
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 	}
 
 	@ExceptionHandler(UserNotPartOfChatException.class)
 	@ResponseBody
-	public ResponseEntity<User> userNotPartOfChat()
+	public ResponseEntity<ErrorData> userNotPartOfChat()
 	{
-		User user = new User();
-		user.setEmail("qwe");
-		user.setFullName("qweasd");
-		return new ResponseEntity<>(user, HttpStatus.BAD_REQUEST);
+		ErrorData error = new ErrorData();
+		error.error(ErrorData.ErrorEnum.USER_NOT_PART_OF_CHAT)
+				.message("You are not part of this chat.");
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 	}
 }

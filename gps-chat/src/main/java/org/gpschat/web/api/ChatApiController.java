@@ -9,6 +9,7 @@ import org.gpschat.web.config.CustomUserDetails;
 import org.gpschat.web.data.ChatRoom;
 import org.gpschat.web.data.Message;
 import org.gpschat.web.data.UserIdList;
+import org.gpschat.web.data.ViewDistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-11-17T14:00:30.041Z")
 
@@ -28,14 +30,16 @@ public class ChatApiController implements ChatApi
 	ChatService	chatService;
 
 	@Override
-	public ResponseEntity<List<Message>> chatCommonAsUserIdGet(String userId, OffsetDateTime before)
+	public ResponseEntity<List<Message>> chatCommonAsUserIdGet(
+			@PathVariable("userId") String userId,
+			@RequestParam(value = "before", required = false) OffsetDateTime before)
 	{
-		// TODO Auto-generated method stub
-		return ChatApi.super.chatCommonAsUserIdGet(userId, before);
+		return new ResponseEntity<>(chatService.messagesBeforeInCommonAsOtherUser(userId, before),
+				HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<Integer> chatCommonDistanceGet(
+	public ResponseEntity<ViewDistance> chatCommonDistanceGet(
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		return new ResponseEntity<>(userService.getViewDistance(activeUser.getEntity()),
@@ -43,7 +47,7 @@ public class ChatApiController implements ChatApi
 	}
 
 	@Override
-	public ResponseEntity<Void> chatCommonDistancePost(Integer distance,
+	public ResponseEntity<Void> chatCommonDistancePost(ViewDistance distance,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		userService.setViewDistance(distance, activeUser.getEntity());
@@ -82,19 +86,24 @@ public class ChatApiController implements ChatApi
 	}
 
 	@Override
-	public ResponseEntity<List<Message>> chatMessagesAfterGet(OffsetDateTime dateTime,
-			String chatId)
+	public ResponseEntity<List<Message>> chatMessagesAfterGet(
+			@RequestParam(value = "chatId", required = true) String chatId,
+			@RequestParam(value = "dateTime", required = true) OffsetDateTime dateTime,
+			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
-		// TODO Auto-generated method stub
-		return ChatApi.super.chatMessagesAfterGet(dateTime, chatId);
+		return new ResponseEntity<>(
+				chatService.messagesAfter(chatId, dateTime, activeUser.getEntity()), HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<List<Message>> chatMessagesBeforeGet(String chatId,
-			OffsetDateTime dateTime)
+	public ResponseEntity<List<Message>> chatMessagesBeforeGet(
+			@RequestParam(value = "chatId", required = true) String chatId,
+			@RequestParam(value = "dateTime", required = true) OffsetDateTime dateTime,
+			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
-		// TODO Auto-generated method stub
-		return ChatApi.super.chatMessagesBeforeGet(chatId, dateTime);
+		return new ResponseEntity<>(
+				chatService.messagesBefore(chatId, dateTime, activeUser.getEntity()),
+				HttpStatus.OK);
 	}
 
 	@Override
