@@ -5,23 +5,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class FcmMessage
 {
 	@JsonProperty("message_type")
-	private String	type;
+	private String			type;
 	@JsonProperty("message_id")
-	private String	id;
+	private String			id;
 	@JsonProperty("from")
-	private String	from;
+	private String			from;
 	@JsonProperty("registration_id")
-	private String	registrationId;
+	private String			registrationId;
 	@JsonProperty("error")
-	private String	error;
+	private FcmErrorCode	error;
 	@JsonProperty("error_description")
-	private String	errorDescription;
+	private String			errorDescription;
 	@JsonProperty("control_type")
-	private String	controlType;
+	private String			controlType;
 	@JsonProperty("category")
-	private String	category;
+	private String			category;
 	@JsonProperty("data")
-	private String	data;
+	private UpChatMessage	data;
 
 	public AckResponse asAck()
 	{
@@ -83,12 +83,12 @@ public class FcmMessage
 		this.registrationId = registrationId;
 	}
 
-	public String getError()
+	public FcmErrorCode getError()
 	{
 		return error;
 	}
 
-	public void setError(String error)
+	public void setError(FcmErrorCode error)
 	{
 		this.error = error;
 	}
@@ -111,6 +111,26 @@ public class FcmMessage
 	public void setControlType(String controlType)
 	{
 		this.controlType = controlType;
+	}
+
+	public String getCategory()
+	{
+		return category;
+	}
+
+	public void setCategory(String category)
+	{
+		this.category = category;
+	}
+
+	public UpChatMessage getData()
+	{
+		return data;
+	}
+
+	public void setData(UpChatMessage data)
+	{
+		this.data = data;
 	}
 
 }

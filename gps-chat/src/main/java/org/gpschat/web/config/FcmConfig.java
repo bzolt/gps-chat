@@ -23,6 +23,9 @@ import org.springframework.integration.xmpp.outbound.ChatMessageSendingMessageHa
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Configuration
 public class FcmConfig
 {
@@ -87,6 +90,8 @@ public class FcmConfig
 	@Transformer(inputChannel = "fcmChannel", outputChannel = "fcmJsonChannel")
 	public ObjectToJsonTransformer objectToJsonTransformer()
 	{
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 		return new ObjectToJsonTransformer();
 	}
 

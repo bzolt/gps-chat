@@ -2,12 +2,12 @@ package org.gpschat.fcm.data;
 
 public class NackResponse
 {
-	final private String	id;
-	final private String	from;
-	final private String	error;
-	final private String	errorDescription;
+	final private String		id;
+	final private String		from;
+	final private FcmErrorCode	error;
+	final private String		errorDescription;
 
-	public NackResponse(String id, String from, String error, String errorDescription)
+	public NackResponse(String id, String from, FcmErrorCode error, String errorDescription)
 	{
 		this.id = id;
 		this.from = from;
@@ -25,7 +25,7 @@ public class NackResponse
 		return from;
 	}
 
-	public String getError()
+	public FcmErrorCode getError()
 	{
 		return error;
 	}
