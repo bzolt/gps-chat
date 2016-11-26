@@ -6,16 +6,21 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.proj
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.gpschat.core.constants.ChatConstants;
 import org.gpschat.fcm.data.AckResponse;
 import org.gpschat.fcm.data.AckUpstream;
 import org.gpschat.fcm.data.ControlResponse;
+import org.gpschat.fcm.data.FcmDownstreamMessage;
 import org.gpschat.fcm.data.FcmMessage;
 import org.gpschat.fcm.data.FcmUpstreamMessage;
 import org.gpschat.fcm.data.NackResponse;
+import org.gpschat.fcm.data.Notification;
+import org.gpschat.fcm.data.UpChatMessage;
 import org.gpschat.persistance.domain.Chat;
 import org.gpschat.persistance.domain.MessageEntity;
 import org.gpschat.persistance.domain.UserEntity;
@@ -24,6 +29,7 @@ import org.gpschat.persistance.repositories.MessageEntityRepository;
 import org.gpschat.persistance.repositories.UserEntityRepository;
 import org.gpschat.web.config.GeoJsonNearOperation;
 import org.gpschat.web.config.WithinOperation;
+import org.gpschat.web.data.ChatMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -53,7 +59,10 @@ public class FcmService
 	@Autowired
 	UserEntityRepository	userEntityRepository;
 
-	Map<String, org.gpschat.web.data.Message> messages = new ConcurrentHashMap<>();
+	@Autowired
+	DateService dateService;
+
+	Map<String, org.gpschat.web.data.ChatMessage> messages = new ConcurrentHashMap<>();
 
 	@ServiceActivator(inputChannel = "fcmInChannel")
 	public void receive(FcmMessage message)
@@ -79,14 +88,36 @@ public class FcmService
 		}
 	}
 
-	private void receiveUpstream(FcmUpstreamMessage message)
+	private void receiveUpstream(FcmUpstreamMessage fcmMessage)
 	{
-		sendAck(message.getId(), message.getFrom());
+		sendAck(fcmMessage.getId(), fcmMessage.getFrom());
+		UpChatMessage message = fcmMessage.getData();
+		UserEntity user = userEntityRepository.findByFcmToken(fcmMessage.getFrom());
+		boolean isCommon = message.getChatId().equalsIgnoreCase(ChatConstants.COMMON_CHAT_ID);
 
-		// TODO getUSer
-		// TODO save msg
-		// TODO update location
-		// TODO send to others (only others!)
+		Chat chat = isCommon ? null : chatRepository.findOne(message.getChatId());
+		if (user != null && (isCommon || chat != null))
+		{
+			GeoJsonPoint location = new GeoJsonPoint(message.getLongitude(), message.getLatitude());
+			updateLocation(user, location);
+
+			if (message.getText() != null)
+			{
+				Date date = saveChatMessage(user, chat, message.getText(), location);
+				List<UserEntity> recipients = getRecipients(chat, location);
+				// recipients.remove(user);
+				if (!recipients.isEmpty())
+				{
+					ChatMessage downMessage = new ChatMessage().chatId(message.getChatId())
+							.senderId(user.getId()).senderUserName(user.getUserName())
+							.text(message.getText()).dateTime(dateService.toOffsetDateTime(date));
+					for (UserEntity recipient : recipients)
+					{
+						sendMessage(recipient, downMessage);
+					}
+				}
+			}
+		}
 	}
 
 	private void receiveAck(AckResponse ack)
@@ -143,15 +174,17 @@ public class FcmService
 		messageChannel.send(ack);
 	}
 
-	private void saveChatMessage(UserEntity sender, Chat chat, String text, GeoJsonPoint location)
+	private Date saveChatMessage(UserEntity sender, Chat chat, String text, GeoJsonPoint location)
 	{
+		Date date = new Date();
 		MessageEntity message = new MessageEntity();
 		message.setChat(chat);
 		message.setSender(sender);
 		message.setText(text);
-		message.setDateTime(new Date());
+		message.setDateTime(date);
 		message.setLocation(location);
 		messageRepository.save(message);
+		return date;
 	}
 
 	private void updateLocation(UserEntity user, GeoJsonPoint location)
@@ -170,5 +203,44 @@ public class FcmService
 		AggregationResults<UserEntity> users = mongoTemplate.aggregate(aggregation, "userEntity",
 				UserEntity.class);
 		return users.getMappedResults();
+	}
+
+	private List<UserEntity> getRecipients(Chat chat, GeoJsonPoint location)
+	{
+		List<UserEntity> recipients;
+		// It is the common chat
+		if (chat == null)
+		{
+			recipients = usersNear(location);
+		}
+		else
+		{
+			recipients = chat.getMembers();
+		}
+		for (Iterator<UserEntity> iterator = recipients.iterator(); iterator.hasNext();)
+		{
+			UserEntity userEntity = iterator.next();
+			if (userEntity.getFcmToken() == null)
+			{
+				iterator.remove();
+			}
+		}
+		return recipients;
+	}
+
+	private void sendMessage(UserEntity recipient, ChatMessage message)
+	{
+		messages.put(message.getText(), message);
+		FcmDownstreamMessage downMessage = new FcmDownstreamMessage();
+		downMessage.setId(message.getText());
+		downMessage.setData(message);
+		downMessage.setTo(recipient.getFcmToken());
+		Notification notification = new Notification();
+		notification.setTitle("Üzenet!!!!!!");
+		notification.setBody("Mondom jött üzenet, remélem szép a színe!");
+		notification.setColor("#1E90C4");
+		downMessage.setNotification(notification);
+		Message<FcmDownstreamMessage> fcmMessage = MessageBuilder.withPayload(downMessage).build();
+		messageChannel.send(fcmMessage);
 	}
 }

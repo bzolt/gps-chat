@@ -21,6 +21,7 @@ public class UserEntity
 	private String				email;
 	private GeoJsonPoint		location;
 	private int					viewDistance;
+	private String				fcmToken;
 	@DBRef(lazy = true)
 	private List<UserEntity>	blockedUsers	= new ArrayList<>();
 
@@ -82,6 +83,16 @@ public class UserEntity
 	public void setViewDistance(int viewDistance)
 	{
 		this.viewDistance = viewDistance;
+	}
+
+	public String getFcmToken()
+	{
+		return fcmToken;
+	}
+
+	public void setFcmToken(String fcmToken)
+	{
+		this.fcmToken = fcmToken;
 	}
 
 	public List<UserEntity> getBlockedUsers()

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.gpschat.web.config.CustomUserDetails;
 import org.gpschat.web.data.ChatRoom;
-import org.gpschat.web.data.Message;
+import org.gpschat.web.data.ChatMessage;
 import org.gpschat.web.data.UserIdList;
 import org.gpschat.web.data.ViewDistance;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +29,14 @@ import io.swagger.annotations.Authorization;
 public interface ChatApi
 {
 
-	@ApiOperation(value = "View chat as someone else.", notes = "View the common chat as another user.", response = Message.class, responseContainer = "List", authorizations = {
+	@ApiOperation(value = "View chat as someone else.", notes = "View the common chat as another user.", response = ChatMessage.class, responseContainer = "List", authorizations = {
 			@Authorization(value = "basicAuth") }, tags = { "chat", })
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Messages before the given time seen as the specified user.", response = Message.class),
-			@ApiResponse(code = 404, message = "User not found.", response = Message.class) })
+			@ApiResponse(code = 200, message = "Messages before the given time seen as the specified user.", response = ChatMessage.class),
+			@ApiResponse(code = 404, message = "User not found.", response = ChatMessage.class) })
 	@RequestMapping(value = "/chat/common/as/{userId}", produces = {
 			"application/json" }, consumes = { "application/json" }, method = RequestMethod.GET)
-	ResponseEntity<List<Message>> chatCommonAsUserIdGet(
+	ResponseEntity<List<ChatMessage>> chatCommonAsUserIdGet(
 			@ApiParam(value = "", required = true) @PathVariable("userId") String userId,
 			@ApiParam(value = "") @RequestParam(value = "before", required = false) OffsetDateTime before);
 
@@ -104,28 +104,28 @@ public interface ChatApi
 			@ApiParam(value = "", required = true) @RequestBody UserIdList userIds,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
-	@ApiOperation(value = "Get messages.", notes = "Get messages in a chat after a given time.", response = Message.class, responseContainer = "List", authorizations = {
+	@ApiOperation(value = "Get messages.", notes = "Get messages in a chat after a given time.", response = ChatMessage.class, responseContainer = "List", authorizations = {
 			@Authorization(value = "basicAuth") }, tags = { "chat", })
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Messages after the given time.", response = Message.class),
-			@ApiResponse(code = 400, message = "Bad format. Not part of chat.", response = Message.class),
-			@ApiResponse(code = 404, message = "Chat not found.", response = Message.class) })
+			@ApiResponse(code = 200, message = "Messages after the given time.", response = ChatMessage.class),
+			@ApiResponse(code = 400, message = "Bad format. Not part of chat.", response = ChatMessage.class),
+			@ApiResponse(code = 404, message = "Chat not found.", response = ChatMessage.class) })
 	@RequestMapping(value = "/chat/messages/after", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.GET)
-	ResponseEntity<List<Message>> chatMessagesAfterGet(
+	ResponseEntity<List<ChatMessage>> chatMessagesAfterGet(
 			@ApiParam(value = "", required = true) @RequestParam(value = "chatId", required = true) String chatId,
 			@ApiParam(value = "", required = true) @RequestParam(value = "dateTime", required = true) OffsetDateTime dateTime,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
-	@ApiOperation(value = "Get messages.", notes = "Get messages in a chat before a given time.", response = Message.class, responseContainer = "List", authorizations = {
+	@ApiOperation(value = "Get messages.", notes = "Get messages in a chat before a given time.", response = ChatMessage.class, responseContainer = "List", authorizations = {
 			@Authorization(value = "basicAuth") }, tags = { "chat", })
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Messages before the given time.", response = Message.class),
-			@ApiResponse(code = 400, message = "Bad format. Not part of chat.", response = Message.class),
-			@ApiResponse(code = 404, message = "Chat not found.", response = Message.class) })
+			@ApiResponse(code = 200, message = "Messages before the given time.", response = ChatMessage.class),
+			@ApiResponse(code = 400, message = "Bad format. Not part of chat.", response = ChatMessage.class),
+			@ApiResponse(code = 404, message = "Chat not found.", response = ChatMessage.class) })
 	@RequestMapping(value = "/chat/messages/before", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.GET)
-	ResponseEntity<List<Message>> chatMessagesBeforeGet(
+	ResponseEntity<List<ChatMessage>> chatMessagesBeforeGet(
 			@ApiParam(value = "", required = true) @RequestParam(value = "chatId", required = true) String chatId,
 			@ApiParam(value = "") @RequestParam(value = "dateTime", required = false) OffsetDateTime dateTime,
 			@AuthenticationPrincipal CustomUserDetails activeUser);

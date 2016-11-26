@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.gpschat.core.service.UserService;
 import org.gpschat.web.config.CustomUserDetails;
 import org.gpschat.web.data.User;
+import org.gpschat.web.data.UserIdList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +74,14 @@ public class UsersApiController implements UsersApi
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<Void> fcmTokenPost(@RequestBody UserIdList userIds,
+			@AuthenticationPrincipal CustomUserDetails activeUser)
+	{
+		userService.setFcmToken(userIds.getIds().get(0), activeUser.getEntity());
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

@@ -18,7 +18,7 @@ import org.gpschat.persistance.repositories.MessageEntityRepository;
 import org.gpschat.persistance.repositories.UserEntityRepository;
 import org.gpschat.web.data.ChatRoom;
 import org.gpschat.web.data.ChatRoom.TypeEnum;
-import org.gpschat.web.data.Message;
+import org.gpschat.web.data.ChatMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.geo.Distance;
@@ -136,7 +136,7 @@ public class ChatService
 		chatRepository.save(chat);
 	}
 
-	public List<Message> messagesAfter(String chatId, OffsetDateTime dateTime, UserEntity user)
+	public List<ChatMessage> messagesAfter(String chatId, OffsetDateTime dateTime, UserEntity user)
 	{
 		if (chatId.equals(ChatConstants.COMMON_CHAT_ID))
 		{
@@ -155,7 +155,7 @@ public class ChatService
 		List<MessageEntity> entities = messageEntityRepository.findFirstByChatAndDateTimeAfter(
 				ChatConstants.MESSAGE_PAGE_SIZE, chat, dateService.toDate(dateTime));
 
-		List<Message> messages = new ArrayList<>();
+		List<ChatMessage> messages = new ArrayList<>();
 		for (MessageEntity messageEntity : entities)
 		{
 			messages.add(convertToMessage(messageEntity));
@@ -163,7 +163,7 @@ public class ChatService
 		return messages;
 	}
 
-	public List<Message> messagesBefore(String chatId, OffsetDateTime dateTime, UserEntity user)
+	public List<ChatMessage> messagesBefore(String chatId, OffsetDateTime dateTime, UserEntity user)
 	{
 		if (chatId.equals(ChatConstants.COMMON_CHAT_ID))
 		{
@@ -183,7 +183,7 @@ public class ChatService
 		List<MessageEntity> entities = messageEntityRepository.findFirstByChatAndDateTimeBefore(
 				ChatConstants.MESSAGE_PAGE_SIZE, chat, dateService.toDate(dateTime));
 
-		List<Message> messages = new ArrayList<>();
+		List<ChatMessage> messages = new ArrayList<>();
 		for (MessageEntity messageEntity : entities)
 		{
 			messages.add(convertToMessage(messageEntity));
@@ -191,7 +191,7 @@ public class ChatService
 		return messages;
 	}
 
-	public List<Message> messagesBeforeInCommonAsOtherUser(String userId, OffsetDateTime dateTime)
+	public List<ChatMessage> messagesBeforeInCommonAsOtherUser(String userId, OffsetDateTime dateTime)
 	{
 		UserEntity user = userEntityRepository.findOne(userId);
 		if (user == null)
@@ -202,7 +202,7 @@ public class ChatService
 		return messagesBeforeInCommon(dateTime, user);
 	}
 
-	private List<Message> messagesAfterInCommon(OffsetDateTime dateTime, UserEntity user)
+	private List<ChatMessage> messagesAfterInCommon(OffsetDateTime dateTime, UserEntity user)
 	{
 		List<MessageEntity> entities = messageEntityRepository
 				.findFirstByChatIsNullAndDateTimeAfterAndLocationNear(
@@ -210,7 +210,7 @@ public class ChatService
 						user.getLocation(),
 						new Distance(user.getViewDistance(), ChatConstants.VIEW_DISTANCE_METRICS));
 
-		List<Message> messages = new ArrayList<>();
+		List<ChatMessage> messages = new ArrayList<>();
 		for (MessageEntity messageEntity : entities)
 		{
 			messages.add(convertToMessage(messageEntity));
@@ -218,7 +218,7 @@ public class ChatService
 		return messages;
 	}
 
-	private List<Message> messagesBeforeInCommon(OffsetDateTime dateTime, UserEntity user)
+	private List<ChatMessage> messagesBeforeInCommon(OffsetDateTime dateTime, UserEntity user)
 	{
 		List<MessageEntity> entities = messageEntityRepository
 				.findFirstByChatIsNullAndDateTimeBeforeAndLocationNear(
@@ -226,7 +226,7 @@ public class ChatService
 						user.getLocation(),
 						new Distance(user.getViewDistance(), ChatConstants.VIEW_DISTANCE_METRICS));
 
-		List<Message> messages = new ArrayList<>();
+		List<ChatMessage> messages = new ArrayList<>();
 		for (MessageEntity messageEntity : entities)
 		{
 			messages.add(convertToMessage(messageEntity));
@@ -267,9 +267,9 @@ public class ChatService
 		return chatRoom;
 	}
 
-	private Message convertToMessage(MessageEntity entity)
+	private ChatMessage convertToMessage(MessageEntity entity)
 	{
-		Message message = new Message();
+		ChatMessage message = new ChatMessage();
 		message.senderId(entity.getSender().getId())
 				.senderUserName(entity.getSender().getUserName()).text(entity.getText())
 				.dateTime(dateService.toOffsetDateTime(entity.getDateTime()));

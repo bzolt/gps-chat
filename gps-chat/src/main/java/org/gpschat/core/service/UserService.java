@@ -99,6 +99,12 @@ public class UserService
 		user.setViewDistance(distance.getValue());
 	}
 
+	public void setFcmToken(String token, UserEntity user)
+	{
+		user.setFcmToken(token);
+		userEntityRepository.save(user);
+	}
+
 	private User convertToUser(UserEntity entity)
 	{
 		User user = new User();

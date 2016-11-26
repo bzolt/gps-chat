@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class UpChatMessage
 {
 	@JsonProperty("text")
-	private String	text	= null;
+	private String	text		= null;
 	@JsonProperty("chatId")
-	private String	chatId	= null;
-	@JsonProperty("x")
-	private Double	x		= null;
-	@JsonProperty("y")
-	private Double	y		= null;
+	private String	chatId		= null;
+	@JsonProperty("longitude")
+	private Double	longitude	= null;
+	@JsonProperty("latitude")
+	private Double	latitude	= null;
 
 	public String getText()
 	{
@@ -33,23 +33,23 @@ public class UpChatMessage
 		this.chatId = chatId;
 	}
 
-	public Double getX()
+	public Double getLongitude()
 	{
-		return x;
+		return longitude;
 	}
 
-	public void setX(Double x)
+	public void setLongitude(Double longitude)
 	{
-		this.x = x;
+		this.longitude = longitude;
 	}
 
-	public Double getY()
+	public Double getLatitude()
 	{
-		return y;
+		return latitude;
 	}
 
-	public void setY(Double y)
+	public void setLatitude(Double latitude)
 	{
-		this.y = y;
+		this.latitude = latitude;
 	}
 }
