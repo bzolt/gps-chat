@@ -12,7 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-11-17T14:00:30.041Z")
 
-public class Message
+public class ChatMessage
 {
 	@JsonProperty("senderId")
 	private String senderId = null;
@@ -23,10 +23,13 @@ public class Message
 	@JsonProperty("text")
 	private String text = null;
 
+	@JsonProperty("chatId")
+	private String chatId = null;
+
 	@JsonProperty("dateTime")
 	private OffsetDateTime dateTime = null;
 
-	public Message senderId(String senderId)
+	public ChatMessage senderId(String senderId)
 	{
 		this.senderId = senderId;
 		return this;
@@ -48,7 +51,7 @@ public class Message
 		this.senderId = senderId;
 	}
 
-	public Message senderUserName(String senderUserName)
+	public ChatMessage senderUserName(String senderUserName)
 	{
 		this.senderUserName = senderUserName;
 		return this;
@@ -70,9 +73,31 @@ public class Message
 		this.senderUserName = senderUserName;
 	}
 
-	public Message text(String text)
+	public ChatMessage text(String text)
 	{
 		this.text = text;
+		return this;
+	}
+
+	/**
+	 * Get chatId
+	 * 
+	 * @return chatId
+	 **/
+	@ApiModelProperty(value = "")
+	public String getChatId()
+	{
+		return chatId;
+	}
+
+	public void setChatId(String chatId)
+	{
+		this.chatId = chatId;
+	}
+
+	public ChatMessage chatId(String chatId)
+	{
+		this.chatId = chatId;
 		return this;
 	}
 
@@ -92,7 +117,7 @@ public class Message
 		this.text = text;
 	}
 
-	public Message dateTime(OffsetDateTime dateTime)
+	public ChatMessage dateTime(OffsetDateTime dateTime)
 	{
 		this.dateTime = dateTime;
 		return this;
@@ -125,7 +150,7 @@ public class Message
 		{
 			return false;
 		}
-		Message message = (Message) o;
+		ChatMessage message = (ChatMessage) o;
 		return Objects.equals(this.senderId, message.senderId)
 				&& Objects.equals(this.senderUserName, message.senderUserName)
 				&& Objects.equals(this.text, message.text)

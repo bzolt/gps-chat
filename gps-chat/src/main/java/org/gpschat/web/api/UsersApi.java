@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.gpschat.web.config.CustomUserDetails;
 import org.gpschat.web.data.User;
+import org.gpschat.web.data.UserIdList;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,6 +75,11 @@ public interface UsersApi
 	@RequestMapping(value = "/users/me", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.PUT)
 	ResponseEntity<Void> usersMePut(@ApiParam(value = "", required = true) @RequestBody User user,
+			@AuthenticationPrincipal CustomUserDetails activeUser);
+
+	@RequestMapping(value = "/fcm/token", produces = { "application/json" }, consumes = {
+			"application/json" }, method = RequestMethod.POST)
+	ResponseEntity<Void> fcmTokenPost(@RequestBody UserIdList userIds,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
 	@RequestMapping(value = "/logout", produces = { "application/json" }, consumes = {

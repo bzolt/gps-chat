@@ -7,7 +7,7 @@ import org.gpschat.core.service.ChatService;
 import org.gpschat.core.service.UserService;
 import org.gpschat.web.config.CustomUserDetails;
 import org.gpschat.web.data.ChatRoom;
-import org.gpschat.web.data.Message;
+import org.gpschat.web.data.ChatMessage;
 import org.gpschat.web.data.UserIdList;
 import org.gpschat.web.data.ViewDistance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class ChatApiController implements ChatApi
 	ChatService	chatService;
 
 	@Override
-	public ResponseEntity<List<Message>> chatCommonAsUserIdGet(
+	public ResponseEntity<List<ChatMessage>> chatCommonAsUserIdGet(
 			@PathVariable("userId") String userId,
 			@RequestParam(value = "before", required = false) OffsetDateTime before)
 	{
@@ -86,7 +86,7 @@ public class ChatApiController implements ChatApi
 	}
 
 	@Override
-	public ResponseEntity<List<Message>> chatMessagesAfterGet(
+	public ResponseEntity<List<ChatMessage>> chatMessagesAfterGet(
 			@RequestParam(value = "chatId", required = true) String chatId,
 			@RequestParam(value = "dateTime", required = true) OffsetDateTime dateTime,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
@@ -96,7 +96,7 @@ public class ChatApiController implements ChatApi
 	}
 
 	@Override
-	public ResponseEntity<List<Message>> chatMessagesBeforeGet(
+	public ResponseEntity<List<ChatMessage>> chatMessagesBeforeGet(
 			@RequestParam(value = "chatId", required = true) String chatId,
 			@RequestParam(value = "dateTime", required = true) OffsetDateTime dateTime,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
