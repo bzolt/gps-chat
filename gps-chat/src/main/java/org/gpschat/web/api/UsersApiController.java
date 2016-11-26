@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-11-17T14:00:30.041Z")
 
@@ -32,13 +34,14 @@ public class UsersApiController implements UsersApi
 	}
 
 	@Override
-	public ResponseEntity<List<User>> usersFindGet(String queryString)
+	public ResponseEntity<List<User>> usersFindGet(
+			@RequestParam(value = "queryString", required = true) String queryString)
 	{
 		return new ResponseEntity<>(userService.queryUsers(queryString), HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<User> usersIdGet(String id)
+	public ResponseEntity<User> usersIdGet(@PathVariable("id") String id)
 	{
 		return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
 	}
@@ -51,7 +54,7 @@ public class UsersApiController implements UsersApi
 	}
 
 	@Override
-	public ResponseEntity<Void> usersMePut(User user,
+	public ResponseEntity<Void> usersMePut(@RequestBody User user,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		userService.updateUser(user, activeUser.getEntity());

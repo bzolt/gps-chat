@@ -47,7 +47,7 @@ public class ChatApiController implements ChatApi
 	}
 
 	@Override
-	public ResponseEntity<Void> chatCommonDistancePost(ViewDistance distance,
+	public ResponseEntity<Void> chatCommonDistancePost(@RequestBody ViewDistance distance,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		userService.setViewDistance(distance, activeUser.getEntity());

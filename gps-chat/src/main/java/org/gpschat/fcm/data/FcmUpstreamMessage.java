@@ -5,15 +5,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class FcmUpstreamMessage
 {
 	@JsonProperty("message_id")
-	private String	id;
+	private String			id;
 	@JsonProperty("from")
-	private String	from;
+	private String			from;
 	@JsonProperty("category")
-	private String	category;
+	private String			category;
 	@JsonProperty("data")
-	private String	data;
+	private UpChatMessage	data;
 
-	public FcmUpstreamMessage(String id, String from, String category, String data)
+	public FcmUpstreamMessage()
+	{
+	}
+
+	public FcmUpstreamMessage(String id, String from, String category, UpChatMessage data)
 	{
 		this.id = id;
 		this.from = from;
@@ -51,12 +55,12 @@ public class FcmUpstreamMessage
 		this.category = category;
 	}
 
-	public String getData()
+	public UpChatMessage getData()
 	{
 		return data;
 	}
 
-	public void setData(String data)
+	public void setData(UpChatMessage data)
 	{
 		this.data = data;
 	}
