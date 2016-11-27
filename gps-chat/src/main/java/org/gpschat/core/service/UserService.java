@@ -3,6 +3,7 @@ package org.gpschat.core.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gpschat.core.constants.SecurityConstants;
 import org.gpschat.core.exceptions.InvalidUserException;
 import org.gpschat.core.exceptions.InvalidValueException;
 import org.gpschat.core.exceptions.UserNotFoundException;
@@ -13,6 +14,7 @@ import org.gpschat.persistance.repositories.UserEntityRepository;
 import org.gpschat.web.data.User;
 import org.gpschat.web.data.ViewDistance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,18 +68,20 @@ public class UserService
 	{
 		if (modifiedUser.getUsername() != null && !modifiedUser.getUsername().isEmpty())
 		{
-			user.setUserName(modifiedUser.getUsername());
+			user.setUserName(modifiedUser.getUsername().trim());
 		}
 		if (modifiedUser.getFullName() != null && !modifiedUser.getFullName().isEmpty())
 		{
-			user.setFullName(modifiedUser.getFullName());
+			user.setFullName(modifiedUser.getFullName().trim());
 		}
 		userEntityRepository.save(user);
 
 		if (modifiedUser.getPassword() != null && !modifiedUser.getPassword().isEmpty())
 		{
 			Login login = loginRepository.findByEmail(user.getEmail());
-			login.setPassword(modifiedUser.getPassword());
+			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(
+					SecurityConstants.B_CRYPT_STRENGTH);
+			login.setPassword(encoder.encode(modifiedUser.getPassword()));
 			loginRepository.save(login);
 		}
 	}
@@ -97,11 +101,22 @@ public class UserService
 		}
 
 		user.setViewDistance(distance.getValue());
+		userEntityRepository.save(user);
 	}
 
-	public void setFcmToken(String token, UserEntity user)
+	public void setFcmToken(List<String> token, UserEntity user)
 	{
-		user.setFcmToken(token);
+		if (token.size() != 1)
+		{
+			throw new InvalidValueException();
+		}
+		user.setFcmToken(token.get(0));
+		userEntityRepository.save(user);
+	}
+
+	public void logout(UserEntity user)
+	{
+		user.setFcmToken(null);
 		userEntityRepository.save(user);
 	}
 

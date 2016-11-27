@@ -13,37 +13,37 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-11-22T11:02:32.119Z")
 
-public class UserIdList
+public class StringList
 {
-	@JsonProperty("ids")
-	private List<String> ids = new ArrayList<String>();
+	@JsonProperty("items")
+	private List<String> items = new ArrayList<String>();
 
-	public UserIdList ids(List<String> ids)
+	public StringList items(List<String> items)
 	{
-		this.ids = ids;
+		this.items = items;
 		return this;
 	}
 
-	public UserIdList addIdsItem(String idsItem)
+	public StringList addItemsItem(String itemsItem)
 	{
-		this.ids.add(idsItem);
+		this.items.add(itemsItem);
 		return this;
 	}
 
 	/**
-	 * Get ids
+	 * Get items
 	 * 
-	 * @return ids
+	 * @return items
 	 **/
 	@ApiModelProperty(value = "")
-	public List<String> getIds()
+	public List<String> getItems()
 	{
-		return ids;
+		return items;
 	}
 
-	public void setIds(List<String> ids)
+	public void setItems(List<String> items)
 	{
-		this.ids = ids;
+		this.items = items;
 	}
 
 	@Override
@@ -57,14 +57,14 @@ public class UserIdList
 		{
 			return false;
 		}
-		UserIdList userIdList = (UserIdList) o;
-		return Objects.equals(this.ids, userIdList.ids);
+		StringList userIdList = (StringList) o;
+		return Objects.equals(this.items, userIdList.items);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(ids);
+		return Objects.hash(items);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class UserIdList
 		StringBuilder sb = new StringBuilder();
 		sb.append("class UserIdList {\n");
 
-		sb.append("    ids: ").append(toIndentedString(ids)).append("\n");
+		sb.append("    ids: ").append(toIndentedString(items)).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}

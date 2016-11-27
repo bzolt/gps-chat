@@ -5,11 +5,15 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.newA
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.gpschat.core.constants.ChatConstants;
 import org.gpschat.fcm.data.AckResponse;
@@ -20,6 +24,7 @@ import org.gpschat.fcm.data.FcmMessage;
 import org.gpschat.fcm.data.FcmUpstreamMessage;
 import org.gpschat.fcm.data.NackResponse;
 import org.gpschat.fcm.data.Notification;
+import org.gpschat.fcm.data.PendingMessage;
 import org.gpschat.fcm.data.UpChatMessage;
 import org.gpschat.persistance.domain.Chat;
 import org.gpschat.persistance.domain.MessageEntity;
@@ -30,6 +35,7 @@ import org.gpschat.persistance.repositories.UserEntityRepository;
 import org.gpschat.web.config.GeoJsonNearOperation;
 import org.gpschat.web.config.WithinOperation;
 import org.gpschat.web.data.ChatMessage;
+import org.gpschat.web.data.TypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -38,8 +44,10 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.integration.xmpp.XmppHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -62,7 +70,12 @@ public class FcmService
 	@Autowired
 	DateService dateService;
 
-	Map<String, org.gpschat.web.data.ChatMessage> messages = new ConcurrentHashMap<>();
+	@Autowired
+	TaskScheduler taskScheduler;
+
+	private final Map<String, PendingMessage> pendingMessages = new ConcurrentHashMap<>();
+
+	private final Queue<FcmDownstreamMessage> waitingMessages = new ConcurrentLinkedQueue<>();
 
 	@ServiceActivator(inputChannel = "fcmInChannel")
 	public void receive(FcmMessage message)
@@ -93,36 +106,30 @@ public class FcmService
 		sendAck(fcmMessage.getId(), fcmMessage.getFrom());
 		UpChatMessage message = fcmMessage.getData();
 		UserEntity user = userEntityRepository.findByFcmToken(fcmMessage.getFrom());
-		boolean isCommon = message.getChatId().equalsIgnoreCase(ChatConstants.COMMON_CHAT_ID);
 
-		Chat chat = isCommon ? null : chatRepository.findOne(message.getChatId());
-		if (user != null && (isCommon || chat != null))
+		if (user != null)
 		{
 			GeoJsonPoint location = new GeoJsonPoint(message.getLongitude(), message.getLatitude());
 			updateLocation(user, location);
 
 			if (message.getText() != null)
 			{
-				Date date = saveChatMessage(user, chat, message.getText(), location);
-				List<UserEntity> recipients = getRecipients(chat, location);
-				// recipients.remove(user);
-				if (!recipients.isEmpty())
-				{
-					ChatMessage downMessage = new ChatMessage().chatId(message.getChatId())
-							.senderId(user.getId()).senderUserName(user.getUserName())
-							.text(message.getText()).dateTime(dateService.toOffsetDateTime(date));
-					for (UserEntity recipient : recipients)
-					{
-						sendMessage(recipient, downMessage);
-					}
-				}
+				processUpstreamMessage(user, message, location);
 			}
 		}
 	}
 
 	private void receiveAck(AckResponse ack)
 	{
-		messages.remove(ack.getId());
+		synchronized (pendingMessages)
+		{
+			pendingMessages.remove(ack.getId());
+		}
+		FcmDownstreamMessage message = waitingMessages.poll();
+		if (message != null)
+		{
+			prepareMessage(message);
+		}
 	}
 
 	private void receiveNack(NackResponse nack)
@@ -131,30 +138,21 @@ public class FcmService
 		{
 			case BAD_REGISTRATION:
 			case DEVICE_UNREGISTERED:
-				messages.remove(nack.getId());
-				// TODO remove registration
-				System.out.println("FCM error: " + nack.getError() + "("
-						+ nack.getErrorDescription() + "), id: " + nack.getId());
-				break;
-			case BAD_ACK:
-				// TODO retry ACK
-				System.out.println("FCM error: " + nack.getError() + "("
-						+ nack.getErrorDescription() + "), id: " + nack.getId());
+				pendingMessages.remove(nack.getId());
+				UserEntity user = userEntityRepository.findByFcmToken(nack.getFrom());
+				user.setFcmToken(null);
+				userEntityRepository.save(user);
 				break;
 			case SERVICE_UNAVAILABLE:
 			case INTERNAL_SERVER_ERROR:
-				// TODO retry
-				break;
 			case DEVICE_MESSAGE_RATE_EXCEEDED:
-				// TODO wait and retry later
+				scheduleRetry(nack.getId());
 				break;
 			case CONNECTION_DRAINING:
-				// TODO open new connection and retry
+				handleConnectionDraining();
 				break;
 			default:
-				messages.remove(nack.getId());
-				System.out.println("FCM error: " + nack.getError() + "("
-						+ nack.getErrorDescription() + "), id: " + nack.getId());
+				pendingMessages.remove(nack.getId());
 				break;
 		}
 	}
@@ -163,14 +161,14 @@ public class FcmService
 	{
 		if ("CONNECTION_DRAINING".equals(control.getControlType()))
 		{
-			// TODO open new connection
+			handleConnectionDraining();
 		}
 	}
 
 	private void sendAck(String messageId, String to)
 	{
 		Message<AckUpstream> ack = MessageBuilder.withPayload(new AckUpstream(messageId, to))
-				.build();
+				.setHeader(XmppHeaders.TO, "gcm.googleapis.com").build();
 		messageChannel.send(ack);
 	}
 
@@ -193,16 +191,48 @@ public class FcmService
 		userEntityRepository.save(user);
 	}
 
+	private void processUpstreamMessage(UserEntity user, UpChatMessage message,
+			GeoJsonPoint location)
+	{
+		boolean isCommon = message.getChatId().equalsIgnoreCase(ChatConstants.COMMON_CHAT_ID);
+		Chat chat = isCommon ? null : chatRepository.findOne(message.getChatId());
+		if (isCommon || (chat != null && chat.getMembers().contains(user)))
+		{
+			Date date = saveChatMessage(user, chat, message.getText(), location);
+			List<UserEntity> recipients = getRecipients(chat, location);
+			recipients.remove(user);
+			if (!recipients.isEmpty())
+			{
+				ChatMessage downMessage = new ChatMessage().chatId(message.getChatId())
+						.senderId(user.getId()).senderUserName(user.getUserName())
+						.text(message.getText()).dateTime(date);
+				if (!isCommon)
+				{
+					downMessage.setChatType(chat.isGroup() ? TypeEnum.GROUP : TypeEnum.PRIVATE);
+				}
+				for (UserEntity recipient : recipients)
+				{
+					newMessage(recipient, downMessage);
+				}
+			}
+		}
+	}
+
 	private List<UserEntity> usersNear(GeoJsonPoint point)
 	{
-		Aggregation aggregation = newAggregation(
-				new GeoJsonNearOperation(new GeoJsonPoint(23, 42), "distance"),
-				// project(fields("distance", "viewDistance").and("within", "{
-				// '$lt': [ '$distance', '$viewDistance' ] }")),
+		Aggregation aggregation = newAggregation(new GeoJsonNearOperation(point, "distance"),
 				new WithinOperation(), match(where("within").is(true)), project("_id"));
 		AggregationResults<UserEntity> users = mongoTemplate.aggregate(aggregation, "userEntity",
 				UserEntity.class);
 		return users.getMappedResults();
+		// AggregationResults<Object> users =
+		// mongoTemplate.aggregate(aggregation, "userEntity",
+		// Object.class);
+		// for (Object object : users)
+		// {
+		// System.out.println(object);
+		// }
+		// return new ArrayList<>();
 	}
 
 	private List<UserEntity> getRecipients(Chat chat, GeoJsonPoint location)
@@ -211,7 +241,12 @@ public class FcmService
 		// It is the common chat
 		if (chat == null)
 		{
-			recipients = usersNear(location);
+			List<UserEntity> asd = usersNear(location);
+			recipients = new ArrayList<>();
+			for (UserEntity userEntity : asd)
+			{
+				recipients.add(userEntityRepository.findOne(userEntity.getId()));
+			}
 		}
 		else
 		{
@@ -228,19 +263,89 @@ public class FcmService
 		return recipients;
 	}
 
-	private void sendMessage(UserEntity recipient, ChatMessage message)
+	private void newMessage(UserEntity recipient, ChatMessage message)
 	{
-		messages.put(message.getText(), message);
 		FcmDownstreamMessage downMessage = new FcmDownstreamMessage();
-		downMessage.setId(message.getText());
-		downMessage.setData(message);
+		downMessage.setId(messageId());
 		downMessage.setTo(recipient.getFcmToken());
-		Notification notification = new Notification();
-		notification.setTitle("Üzenet!!!!!!");
-		notification.setBody("Mondom jött üzenet, remélem szép a színe!");
-		notification.setColor("#1E90C4");
-		downMessage.setNotification(notification);
-		Message<FcmDownstreamMessage> fcmMessage = MessageBuilder.withPayload(downMessage).build();
+		downMessage.setData(message);
+		System.out.println(recipient.getEmail() + ", " + recipient.getFcmToken());
+		downMessage.setNotification(createNotification(message));
+
+		prepareMessage(downMessage);
+	}
+
+	private void prepareMessage(FcmDownstreamMessage message)
+	{
+		boolean canSend = false;
+		synchronized (pendingMessages)
+		{
+			if (pendingMessages.size() < 100)
+			{
+				canSend = true;
+				pendingMessages.put(message.getId(), new PendingMessage(0, message));
+			}
+			else
+			{
+				waitingMessages.add(message);
+			}
+		}
+		if (canSend)
+		{
+			sendMessage(message);
+		}
+	}
+
+	private void sendMessage(FcmDownstreamMessage message)
+	{
+		Message<FcmDownstreamMessage> fcmMessage = MessageBuilder.withPayload(message)
+				.setHeader(XmppHeaders.TO, "gcm.googleapis.com").build();
 		messageChannel.send(fcmMessage);
+	}
+
+	public void retryMessage(String messageId)
+	{
+		sendMessage(pendingMessages.get(messageId).getMessage());
+	}
+
+	private Notification createNotification(ChatMessage message)
+	{
+		String chatName;
+		if (message.getChatId().equalsIgnoreCase(ChatConstants.COMMON_CHAT_ID))
+		{
+			chatName = "Közös chat";
+		}
+		else
+		{
+			chatName = message.getChatType() == TypeEnum.GROUP ? "Csoportos chat"
+					: message.getSenderUserName();
+		}
+		Notification notification = new Notification();
+		notification.setTitle(chatName);
+		notification.setBody(message.getSenderUserName() + ": " + message.getText());
+		notification.setColor("#f23c90");
+		notification.setIcon("ic_menu_info_details");
+		notification.setTag(message.getChatId());
+		notification.setSound("default");
+		return notification;
+	}
+
+	private String messageId()
+	{
+		return UUID.randomUUID().toString();
+	}
+
+	private void handleConnectionDraining()
+	{
+		// TODO
+	}
+
+	private void scheduleRetry(String messageId)
+	{
+		PendingMessage pending = pendingMessages.get(messageId);
+		long waitTime = Math.round(Math.pow((double) pending.getRetryCount(), 2.0));
+		pending.incrementRetryCount();
+		Date runTime = new Date(new Date().getTime() + waitTime);
+		taskScheduler.schedule(() -> retryMessage(messageId), runTime);
 	}
 }

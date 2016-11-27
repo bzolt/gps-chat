@@ -6,9 +6,9 @@ import java.util.List;
 import org.gpschat.core.service.ChatService;
 import org.gpschat.core.service.UserService;
 import org.gpschat.web.config.CustomUserDetails;
-import org.gpschat.web.data.ChatRoom;
 import org.gpschat.web.data.ChatMessage;
-import org.gpschat.web.data.UserIdList;
+import org.gpschat.web.data.ChatRoom;
+import org.gpschat.web.data.StringList;
 import org.gpschat.web.data.ViewDistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,9 +63,9 @@ public class ChatApiController implements ChatApi
 
 	@Override
 	public ResponseEntity<Void> chatGroupChatIdInvitePost(@PathVariable("chatId") String chatId,
-			@RequestBody UserIdList userIds, @AuthenticationPrincipal CustomUserDetails activeUser)
+			@RequestBody StringList userIds, @AuthenticationPrincipal CustomUserDetails activeUser)
 	{
-		chatService.inviteToChat(chatId, userIds.getIds(), activeUser.getEntity());
+		chatService.inviteToChat(chatId, userIds.getItems(), activeUser.getEntity());
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -78,11 +78,12 @@ public class ChatApiController implements ChatApi
 	}
 
 	@Override
-	public ResponseEntity<String> chatGroupNewPost(@RequestBody UserIdList userIds,
+	public ResponseEntity<String> chatGroupNewPost(@RequestBody StringList userIds,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		return new ResponseEntity<>(
-				chatService.newGroupChat(userIds.getIds(), activeUser.getEntity()), HttpStatus.OK);
+				chatService.newGroupChat(userIds.getItems(), activeUser.getEntity()),
+				HttpStatus.OK);
 	}
 
 	@Override
@@ -107,11 +108,12 @@ public class ChatApiController implements ChatApi
 	}
 
 	@Override
-	public ResponseEntity<String> chatPrivateNewPost(@RequestBody UserIdList userId,
+	public ResponseEntity<String> chatPrivateNewPost(@RequestBody StringList userId,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		return new ResponseEntity<>(
-				chatService.newPrivateChat(userId.getIds(), activeUser.getEntity()), HttpStatus.OK);
+				chatService.newPrivateChat(userId.getItems(), activeUser.getEntity()),
+				HttpStatus.OK);
 	}
 
 }
