@@ -41,6 +41,7 @@ public class GeoJsonNearOperation implements AggregationOperation
 
 		command.put("near", pointObject);
 		command.put("spherical", true);
+		command.put("distanceMultiplier", 0.001);
 		command.put("distanceField", distanceField);
 
 		return new BasicDBObject("$geoNear", command);

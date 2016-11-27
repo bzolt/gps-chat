@@ -5,8 +5,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.gpschat.web.config.CustomUserDetails;
+import org.gpschat.web.data.StringList;
 import org.gpschat.web.data.User;
-import org.gpschat.web.data.UserIdList;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,13 +77,23 @@ public interface UsersApi
 	ResponseEntity<Void> usersMePut(@ApiParam(value = "", required = true) @RequestBody User user,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
+	@ApiOperation(value = "Send token for FCM communication.", notes = "Send the token used for FCM communication.", response = Void.class, authorizations = {
+			@Authorization(value = "basicAuth") }, tags = { "user", })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Token successfully sent.", response = Void.class),
+			@ApiResponse(code = 400, message = "Bad format.", response = Void.class) })
 	@RequestMapping(value = "/fcm/token", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.POST)
-	ResponseEntity<Void> fcmTokenPost(@RequestBody UserIdList userIds,
+	ResponseEntity<Void> fcmTokenPost(@RequestBody StringList token,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
-	@RequestMapping(value = "/logout", produces = { "application/json" }, consumes = {
+	@ApiOperation(value = "Logout from the service.", notes = "You can logout from the service on this route.", response = Void.class, tags = {
+			"user", })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Logout successful.", response = Void.class) })
+	@RequestMapping(value = "/users/logout", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.POST)
-	ResponseEntity<Void> logoutPost(HttpServletRequest httpServletRequest);
+	ResponseEntity<Void> logoutPost(HttpServletRequest httpServletRequest,
+			@AuthenticationPrincipal CustomUserDetails activeUser);
 
 }

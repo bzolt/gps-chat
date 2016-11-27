@@ -22,6 +22,8 @@ public class FcmMessage
 	private String			category;
 	@JsonProperty("data")
 	private UpChatMessage	data;
+	@JsonProperty("time_to_live")
+	private String			timeToLive;
 
 	public AckResponse asAck()
 	{
@@ -131,6 +133,16 @@ public class FcmMessage
 	public void setData(UpChatMessage data)
 	{
 		this.data = data;
+	}
+
+	public String getTimeToLive()
+	{
+		return timeToLive;
+	}
+
+	public void setTimeToLive(String timeToLive)
+	{
+		this.timeToLive = timeToLive;
 	}
 
 }

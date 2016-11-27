@@ -17,6 +17,7 @@ import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.json.JsonToObjectTransformer;
 import org.springframework.integration.json.ObjectToJsonTransformer;
+import org.springframework.integration.support.json.Jackson2JsonObjectMapper;
 import org.springframework.integration.xmpp.config.XmppConnectionFactoryBean;
 import org.springframework.integration.xmpp.inbound.ChatMessageListeningEndpoint;
 import org.springframework.integration.xmpp.outbound.ChatMessageSendingMessageHandler;
@@ -90,8 +91,6 @@ public class FcmConfig
 	@Transformer(inputChannel = "fcmChannel", outputChannel = "fcmJsonChannel")
 	public ObjectToJsonTransformer objectToJsonTransformer()
 	{
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 		return new ObjectToJsonTransformer();
 	}
 
@@ -111,6 +110,9 @@ public class FcmConfig
 	@Transformer(inputChannel = "fcmInJsonChannel", outputChannel = "fcmInChannel")
 	public JsonToObjectTransformer jsonToObjectTransformer()
 	{
-		return new JsonToObjectTransformer(FcmMessage.class);
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+		Jackson2JsonObjectMapper mapper = new Jackson2JsonObjectMapper(objectMapper);
+		return new JsonToObjectTransformer(FcmMessage.class, mapper);
 	}
 }

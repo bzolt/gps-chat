@@ -2,8 +2,11 @@ package org.gpschat.fcm.data;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonInclude(Include.NON_NULL)
 public class Notification
 {
 	@JsonProperty("title")
@@ -14,7 +17,7 @@ public class Notification
 	private String			icon;
 	@JsonProperty("sound")
 	private String			sound;
-	@JsonProperty("tag")
+	@JsonProperty("group")
 	private String			tag;
 	@JsonProperty("color")
 	private String			color;

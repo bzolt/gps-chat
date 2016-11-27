@@ -1,8 +1,10 @@
 package org.gpschat.web.data;
 
-import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -12,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2016-11-17T14:00:30.041Z")
 
+@JsonInclude(Include.NON_NULL)
 public class ChatMessage
 {
 	@JsonProperty("senderId")
@@ -26,8 +29,11 @@ public class ChatMessage
 	@JsonProperty("chatId")
 	private String chatId = null;
 
+	@JsonProperty("chatType")
+	private TypeEnum chatType = null;
+
 	@JsonProperty("dateTime")
-	private OffsetDateTime dateTime = null;
+	private Date dateTime = null;
 
 	public ChatMessage senderId(String senderId)
 	{
@@ -117,7 +123,29 @@ public class ChatMessage
 		this.text = text;
 	}
 
-	public ChatMessage dateTime(OffsetDateTime dateTime)
+	public ChatMessage chatType(TypeEnum chatType)
+	{
+		this.chatType = chatType;
+		return this;
+	}
+
+	/**
+	 * Get type
+	 * 
+	 * @return type
+	 **/
+	@ApiModelProperty(value = "")
+	public TypeEnum getChatType()
+	{
+		return chatType;
+	}
+
+	public void setChatType(TypeEnum chatType)
+	{
+		this.chatType = chatType;
+	}
+
+	public ChatMessage dateTime(Date dateTime)
 	{
 		this.dateTime = dateTime;
 		return this;
@@ -129,12 +157,12 @@ public class ChatMessage
 	 * @return dateTime
 	 **/
 	@ApiModelProperty(value = "")
-	public OffsetDateTime getDateTime()
+	public Date getDateTime()
 	{
 		return dateTime;
 	}
 
-	public void setDateTime(OffsetDateTime dateTime)
+	public void setDateTime(Date dateTime)
 	{
 		this.dateTime = dateTime;
 	}

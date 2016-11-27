@@ -16,9 +16,9 @@ import org.gpschat.persistance.domain.UserEntity;
 import org.gpschat.persistance.repositories.ChatRepository;
 import org.gpschat.persistance.repositories.MessageEntityRepository;
 import org.gpschat.persistance.repositories.UserEntityRepository;
-import org.gpschat.web.data.ChatRoom;
-import org.gpschat.web.data.ChatRoom.TypeEnum;
 import org.gpschat.web.data.ChatMessage;
+import org.gpschat.web.data.ChatRoom;
+import org.gpschat.web.data.TypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.geo.Distance;
@@ -191,7 +191,8 @@ public class ChatService
 		return messages;
 	}
 
-	public List<ChatMessage> messagesBeforeInCommonAsOtherUser(String userId, OffsetDateTime dateTime)
+	public List<ChatMessage> messagesBeforeInCommonAsOtherUser(String userId,
+			OffsetDateTime dateTime)
 	{
 		UserEntity user = userEntityRepository.findOne(userId);
 		if (user == null)
@@ -272,7 +273,7 @@ public class ChatService
 		ChatMessage message = new ChatMessage();
 		message.senderId(entity.getSender().getId())
 				.senderUserName(entity.getSender().getUserName()).text(entity.getText())
-				.dateTime(dateService.toOffsetDateTime(entity.getDateTime()));
+				.dateTime(entity.getDateTime());
 		return message;
 	}
 }

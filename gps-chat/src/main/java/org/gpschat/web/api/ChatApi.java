@@ -6,7 +6,7 @@ import java.util.List;
 import org.gpschat.web.config.CustomUserDetails;
 import org.gpschat.web.data.ChatRoom;
 import org.gpschat.web.data.ChatMessage;
-import org.gpschat.web.data.UserIdList;
+import org.gpschat.web.data.StringList;
 import org.gpschat.web.data.ViewDistance;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -78,7 +78,7 @@ public interface ChatApi
 			"application/json" }, consumes = { "application/json" }, method = RequestMethod.POST)
 	ResponseEntity<Void> chatGroupChatIdInvitePost(
 			@ApiParam(value = "", required = true) @PathVariable("chatId") String chatId,
-			@ApiParam(value = "", required = true) @RequestBody UserIdList userIds,
+			@ApiParam(value = "", required = true) @RequestBody StringList userIds,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
 	@ApiOperation(value = "Leave a group chat.", notes = "Leave a group chat.", response = Void.class, authorizations = {
@@ -101,7 +101,7 @@ public interface ChatApi
 	@RequestMapping(value = "/chat/group/new", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.POST)
 	ResponseEntity<String> chatGroupNewPost(
-			@ApiParam(value = "", required = true) @RequestBody UserIdList userIds,
+			@ApiParam(value = "", required = true) @RequestBody StringList userIds,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
 	@ApiOperation(value = "Get messages.", notes = "Get messages in a chat after a given time.", response = ChatMessage.class, responseContainer = "List", authorizations = {
@@ -139,7 +139,7 @@ public interface ChatApi
 	@RequestMapping(value = "/chat/private/new", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.POST)
 	ResponseEntity<String> chatPrivateNewPost(
-			@ApiParam(value = "", required = true) @RequestBody UserIdList userId,
+			@ApiParam(value = "", required = true) @RequestBody StringList userId,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
 }

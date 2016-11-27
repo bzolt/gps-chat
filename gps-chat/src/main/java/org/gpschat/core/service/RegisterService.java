@@ -34,7 +34,7 @@ public class RegisterService
 	{
 
 		Login login = new Login();
-		login.setEmail(user.getEmail());
+		login.setEmail(user.getEmail().trim());
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(
 				SecurityConstants.B_CRYPT_STRENGTH);
 		login.setPassword(encoder.encode(user.getPassword()));
@@ -45,9 +45,9 @@ public class RegisterService
 	private void createUserEntity(User user)
 	{
 		UserEntity entity = new UserEntity();
-		entity.setUserName(user.getUsername());
-		entity.setFullName(user.getFullName());
-		entity.setEmail(user.getEmail());
+		entity.setUserName(user.getUsername().trim());
+		entity.setFullName(user.getFullName().trim());
+		entity.setEmail(user.getEmail().trim());
 		entity.setViewDistance(ChatConstants.DEFAULT_VIEW_DISTANCE);
 		userEntityRepository.save(entity);
 	}
