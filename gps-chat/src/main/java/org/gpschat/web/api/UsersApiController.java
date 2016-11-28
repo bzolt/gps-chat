@@ -2,7 +2,6 @@ package org.gpschat.web.api;
 
 import java.util.List;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.gpschat.core.service.UserService;
@@ -67,15 +66,6 @@ public class UsersApiController implements UsersApi
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		userService.logout(activeUser.getEntity());
-		try
-		{
-			httpServletRequest.logout();
-		}
-		catch (ServletException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -84,6 +74,31 @@ public class UsersApiController implements UsersApi
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		userService.setFcmToken(token.getItems(), activeUser.getEntity());
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<StringList> usersIdPictureGet(@PathVariable("id") String id)
+	{
+		return new ResponseEntity<>(new StringList().items(userService.getProfilePicture(id)),
+				HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<StringList> usersMePictureGet(
+			@AuthenticationPrincipal CustomUserDetails activeUser)
+	{
+		return new ResponseEntity<>(
+				new StringList()
+						.items(userService.getProfilePicture(activeUser.getEntity().getId())),
+				HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<Void> usersMePicturePut(@RequestBody StringList picture,
+			@AuthenticationPrincipal CustomUserDetails activeUser)
+	{
+		userService.saveProfilePicture(picture.getItems(), activeUser.getEntity());
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

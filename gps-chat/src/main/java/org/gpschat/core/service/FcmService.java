@@ -270,9 +270,13 @@ public class FcmService
 		downMessage.setTo(recipient.getFcmToken());
 		downMessage.setData(message);
 		System.out.println(recipient.getEmail() + ", " + recipient.getFcmToken());
-		downMessage.setNotification(createNotification(message));
-
 		prepareMessage(downMessage);
+
+		FcmDownstreamMessage downMessage2 = new FcmDownstreamMessage();
+		downMessage2.setId(messageId());
+		downMessage2.setTo(recipient.getFcmToken());
+		downMessage2.setNotification(createNotification(message));
+		// prepareMessage(downMessage2);
 	}
 
 	private void prepareMessage(FcmDownstreamMessage message)

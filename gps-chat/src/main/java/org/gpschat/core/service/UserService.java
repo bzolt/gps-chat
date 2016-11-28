@@ -8,8 +8,10 @@ import org.gpschat.core.exceptions.InvalidUserException;
 import org.gpschat.core.exceptions.InvalidValueException;
 import org.gpschat.core.exceptions.UserNotFoundException;
 import org.gpschat.persistance.domain.Login;
+import org.gpschat.persistance.domain.ProfilePicture;
 import org.gpschat.persistance.domain.UserEntity;
 import org.gpschat.persistance.repositories.LoginRepository;
+import org.gpschat.persistance.repositories.ProfilePictureRepository;
 import org.gpschat.persistance.repositories.UserEntityRepository;
 import org.gpschat.web.data.User;
 import org.gpschat.web.data.ViewDistance;
@@ -21,9 +23,11 @@ import org.springframework.stereotype.Service;
 public class UserService
 {
 	@Autowired
-	LoginRepository			loginRepository;
+	LoginRepository				loginRepository;
 	@Autowired
-	UserEntityRepository	userEntityRepository;
+	ProfilePictureRepository	profilePictureRepository;
+	@Autowired
+	UserEntityRepository		userEntityRepository;
 
 	public void blockUser(String blockedId, UserEntity user)
 	{
@@ -41,9 +45,9 @@ public class UserService
 		userEntityRepository.save(user);
 	}
 
-	public User getUser(String id)
+	public User getUser(String userId)
 	{
-		UserEntity entity = userEntityRepository.findOne(id);
+		UserEntity entity = userEntityRepository.findOne(userId);
 		if (entity == null)
 		{
 			throw new UserNotFoundException();
@@ -118,6 +122,36 @@ public class UserService
 	{
 		user.setFcmToken(null);
 		userEntityRepository.save(user);
+	}
+
+	public void saveProfilePicture(List<String> picture, UserEntity user)
+	{
+		System.out.println("asd");
+		if (picture.size() != 1)
+		{
+			throw new InvalidValueException();
+		}
+		ProfilePicture profilePicture = profilePictureRepository.findByUser(user);
+		if (profilePicture == null)
+		{
+			profilePicture = new ProfilePicture();
+			profilePicture.setUser(user);
+		}
+		profilePicture.setPicture(picture.get(0));
+		profilePictureRepository.save(profilePicture);
+	}
+
+	public List<String> getProfilePicture(String userId)
+	{
+		UserEntity entity = userEntityRepository.findOne(userId);
+		if (entity == null)
+		{
+			throw new UserNotFoundException();
+		}
+		ProfilePicture profilePicture = profilePictureRepository.findByUser(entity);
+		List<String> picture = new ArrayList<>();
+		picture.add(profilePicture.getPicture());
+		return picture;
 	}
 
 	private User convertToUser(UserEntity entity)

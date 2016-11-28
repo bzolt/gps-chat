@@ -1,7 +1,7 @@
 package org.gpschat.core.service;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.gpschat.core.constants.ChatConstants;
@@ -21,12 +21,20 @@ import org.gpschat.web.data.ChatRoom;
 import org.gpschat.web.data.TypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.data.geo.Distance;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
 
 @Service
 public class ChatService
 {
+	@Autowired
+	MongoTemplate mongoTemplate;
+
 	@Autowired
 	ChatRepository			chatRepository;
 	@Autowired
@@ -55,14 +63,7 @@ public class ChatService
 			throw new InvalidValueException();
 		}
 		List<UserEntity> members = createMembersWithUser(userIds, user);
-
-		Chat probe = new Chat();
-		probe.setGroup(false);
-		probe.setMembers(members);
-		Example<Chat> example = Example.of(probe);
-
-		Chat chat = chatRepository.findOne(example);
-
+		Chat chat = getChatWithMembers(members);
 		if (chat == null)
 		{
 			chat = new Chat();
@@ -70,6 +71,7 @@ public class ChatService
 			chat.setMembers(members);
 			chatRepository.save(chat);
 		}
+
 		return chat.getId();
 	}
 
@@ -136,81 +138,97 @@ public class ChatService
 		chatRepository.save(chat);
 	}
 
-	public List<ChatMessage> messagesAfter(String chatId, OffsetDateTime dateTime, UserEntity user)
+	public List<ChatMessage> messagesAfter(String chatId, Long dateTime, UserEntity user)
 	{
+		if (dateTime == null)
+		{
+			throw new InvalidValueException();
+		}
+		Date date = new Date(dateTime);
 		if (chatId.equals(ChatConstants.COMMON_CHAT_ID))
 		{
-			messagesAfterInCommon(dateTime, user);
+			return messagesAfterInCommon(date, user);
 		}
+		else
+		{
+			Chat chat = chatRepository.findOne(chatId);
+			if (chat == null)
+			{
+				throw new ChatNotFoundException();
+			}
+			if (!chat.getMembers().contains(user))
+			{
+				throw new UserNotPartOfChatException();
+			}
+			List<MessageEntity> entities = messageEntityRepository
+					.findFirst10ByChatAndDateTimeAfter(chat, date);
 
-		Chat chat = chatRepository.findOne(chatId);
-		if (chat == null)
-		{
-			throw new ChatNotFoundException();
+			List<ChatMessage> messages = new ArrayList<>();
+			for (MessageEntity messageEntity : entities)
+			{
+				messages.add(convertToMessage(messageEntity));
+			}
+			return messages;
 		}
-		if (!chat.getMembers().contains(user))
-		{
-			throw new UserNotPartOfChatException();
-		}
-		List<MessageEntity> entities = messageEntityRepository.findFirstByChatAndDateTimeAfter(
-				ChatConstants.MESSAGE_PAGE_SIZE, chat, dateService.toDate(dateTime));
-
-		List<ChatMessage> messages = new ArrayList<>();
-		for (MessageEntity messageEntity : entities)
-		{
-			messages.add(convertToMessage(messageEntity));
-		}
-		return messages;
 	}
 
-	public List<ChatMessage> messagesBefore(String chatId, OffsetDateTime dateTime, UserEntity user)
+	public List<ChatMessage> messagesBefore(String chatId, Long dateTime, UserEntity user)
 	{
+		if (dateTime == null)
+		{
+			throw new InvalidValueException();
+		}
+		Date date = new Date(dateTime);
 		if (chatId.equals(ChatConstants.COMMON_CHAT_ID))
 		{
-			messagesBeforeInCommon(dateTime, user);
+			return messagesBeforeInCommon(date, user);
 		}
-
-		Chat chat = chatRepository.findOne(chatId);
-		if (chat == null)
+		else
 		{
-			throw new ChatNotFoundException();
-		}
-		if (!chat.getMembers().contains(user))
-		{
-			throw new UserNotPartOfChatException();
-		}
+			Chat chat = chatRepository.findOne(chatId);
+			if (chat == null)
+			{
+				throw new ChatNotFoundException();
+			}
+			if (!chat.getMembers().contains(user))
+			{
+				throw new UserNotPartOfChatException();
+			}
 
-		List<MessageEntity> entities = messageEntityRepository.findFirstByChatAndDateTimeBefore(
-				ChatConstants.MESSAGE_PAGE_SIZE, chat, dateService.toDate(dateTime));
+			List<MessageEntity> entities = messageEntityRepository
+					.findFirst10ByChatAndDateTimeBefore(chat, date);
 
-		List<ChatMessage> messages = new ArrayList<>();
-		for (MessageEntity messageEntity : entities)
-		{
-			messages.add(convertToMessage(messageEntity));
+			List<ChatMessage> messages = new ArrayList<>();
+			for (MessageEntity messageEntity : entities)
+			{
+				messages.add(convertToMessage(messageEntity));
+			}
+			return messages;
 		}
-		return messages;
 	}
 
-	public List<ChatMessage> messagesBeforeInCommonAsOtherUser(String userId,
-			OffsetDateTime dateTime)
+	public List<ChatMessage> messagesBeforeInCommonAsOtherUser(String userId, Long dateTime)
 	{
+		if (dateTime == null)
+		{
+			throw new InvalidValueException();
+		}
 		UserEntity user = userEntityRepository.findOne(userId);
 		if (user == null)
 		{
 			throw new UserNotFoundException();
 		}
 
-		return messagesBeforeInCommon(dateTime, user);
+		Date date = new Date(dateTime);
+		return messagesBeforeInCommon(date, user);
 	}
 
-	private List<ChatMessage> messagesAfterInCommon(OffsetDateTime dateTime, UserEntity user)
+	private List<ChatMessage> messagesAfterInCommon(Date dateTime, UserEntity user)
 	{
-		List<MessageEntity> entities = messageEntityRepository
-				.findFirstByChatIsNullAndDateTimeAfterAndLocationNear(
-						ChatConstants.MESSAGE_PAGE_SIZE, dateService.toDate(dateTime),
-						user.getLocation(),
-						new Distance(user.getViewDistance(), ChatConstants.VIEW_DISTANCE_METRICS));
-
+		Pageable pageable = new PageRequest(0, 10, Sort.Direction.ASC, "dateTime");
+		List<MessageEntity> entities = messageEntityRepository.findCommonAfter(dateTime,
+				user.getLocation().getX(), user.getLocation().getY(),
+				distanceInRadians(user.getViewDistance()), pageable);
 		List<ChatMessage> messages = new ArrayList<>();
 		for (MessageEntity messageEntity : entities)
 		{
@@ -219,20 +237,23 @@ public class ChatService
 		return messages;
 	}
 
-	private List<ChatMessage> messagesBeforeInCommon(OffsetDateTime dateTime, UserEntity user)
+	private List<ChatMessage> messagesBeforeInCommon(Date dateTime, UserEntity user)
 	{
-		List<MessageEntity> entities = messageEntityRepository
-				.findFirstByChatIsNullAndDateTimeBeforeAndLocationNear(
-						ChatConstants.MESSAGE_PAGE_SIZE, dateService.toDate(dateTime),
-						user.getLocation(),
-						new Distance(user.getViewDistance(), ChatConstants.VIEW_DISTANCE_METRICS));
-
+		Pageable pageable = new PageRequest(0, 10, Sort.Direction.DESC, "dateTime");
+		List<MessageEntity> entities = messageEntityRepository.findCommonBefore(dateTime,
+				user.getLocation().getX(), user.getLocation().getY(),
+				distanceInRadians(user.getViewDistance()), pageable);
 		List<ChatMessage> messages = new ArrayList<>();
-		for (MessageEntity messageEntity : entities)
+		for (MessageEntity messageEntity : Lists.reverse(entities))
 		{
 			messages.add(convertToMessage(messageEntity));
 		}
 		return messages;
+	}
+
+	private double distanceInRadians(double distanceInKms)
+	{
+		return distanceInKms / 6378.1;
 	}
 
 	private List<UserEntity> createMembers(List<String> userIds, UserEntity user)
@@ -259,6 +280,23 @@ public class ChatService
 		List<UserEntity> members = createMembers(userIds, user);
 		members.add(user);
 		return members;
+	}
+
+	private Chat getChatWithMembers(List<UserEntity> members)
+	{
+		Chat probe = new Chat();
+		probe.setGroup(false);
+		probe.setMembers(members);
+		Example<Chat> example = Example.of(probe);
+
+		Chat chat = chatRepository.findOne(example);
+		if (chat == null)
+		{
+			probe.setMembers(Lists.reverse(members));
+			example = Example.of(probe);
+			chat = chatRepository.findOne(example);
+		}
+		return chat;
 	}
 
 	private ChatRoom convertToChatRoom(Chat entity)
