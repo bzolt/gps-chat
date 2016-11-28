@@ -1,11 +1,10 @@
 package org.gpschat.web.api;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.gpschat.web.config.CustomUserDetails;
-import org.gpschat.web.data.ChatRoom;
 import org.gpschat.web.data.ChatMessage;
+import org.gpschat.web.data.ChatRoom;
 import org.gpschat.web.data.StringList;
 import org.gpschat.web.data.ViewDistance;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +37,7 @@ public interface ChatApi
 			"application/json" }, consumes = { "application/json" }, method = RequestMethod.GET)
 	ResponseEntity<List<ChatMessage>> chatCommonAsUserIdGet(
 			@ApiParam(value = "", required = true) @PathVariable("userId") String userId,
-			@ApiParam(value = "") @RequestParam(value = "before", required = false) OffsetDateTime before);
+			@ApiParam(value = "") @RequestParam(value = "before", required = false) Long before);
 
 	@ApiOperation(value = "Get view distance.", notes = "Get the currently logged in user's view distance.", response = ViewDistance.class, authorizations = {
 			@Authorization(value = "basicAuth") }, tags = { "chat", })
@@ -114,7 +113,7 @@ public interface ChatApi
 			"application/json" }, method = RequestMethod.GET)
 	ResponseEntity<List<ChatMessage>> chatMessagesAfterGet(
 			@ApiParam(value = "", required = true) @RequestParam(value = "chatId", required = true) String chatId,
-			@ApiParam(value = "", required = true) @RequestParam(value = "dateTime", required = true) OffsetDateTime dateTime,
+			@ApiParam(value = "", required = true) @RequestParam(value = "dateTime", required = true) Long dateTime,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
 	@ApiOperation(value = "Get messages.", notes = "Get messages in a chat before a given time.", response = ChatMessage.class, responseContainer = "List", authorizations = {
@@ -127,7 +126,7 @@ public interface ChatApi
 			"application/json" }, method = RequestMethod.GET)
 	ResponseEntity<List<ChatMessage>> chatMessagesBeforeGet(
 			@ApiParam(value = "", required = true) @RequestParam(value = "chatId", required = true) String chatId,
-			@ApiParam(value = "") @RequestParam(value = "dateTime", required = false) OffsetDateTime dateTime,
+			@ApiParam(value = "") @RequestParam(value = "dateTime", required = false) Long dateTime,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
 	@ApiOperation(value = "Starting a new private chat.", notes = "Starting a new private chat with a specified user.", response = String.class, authorizations = {

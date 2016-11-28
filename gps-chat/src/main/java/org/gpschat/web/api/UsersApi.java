@@ -59,6 +59,15 @@ public interface UsersApi
 	ResponseEntity<User> usersIdGet(
 			@ApiParam(value = "", required = true) @PathVariable("id") String id);
 
+	@ApiOperation(value = "Profile of current user.", notes = "Get the profile picture of current user.", response = StringList.class, authorizations = {
+			@Authorization(value = "basicAuth") }, tags = { "user", })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "The currently logged in user.", response = StringList.class) })
+	@RequestMapping(value = "/users/{id}/picture", produces = { "application/json" }, consumes = {
+			"application/json" }, method = RequestMethod.GET)
+	ResponseEntity<StringList> usersIdPictureGet(
+			@ApiParam(value = "", required = true) @PathVariable("id") String id);
+
 	@ApiOperation(value = "Get current user.", notes = "Get details of current user.", response = User.class, authorizations = {
 			@Authorization(value = "basicAuth") }, tags = { "user", })
 	@ApiResponses(value = {
@@ -75,6 +84,26 @@ public interface UsersApi
 	@RequestMapping(value = "/users/me", produces = { "application/json" }, consumes = {
 			"application/json" }, method = RequestMethod.PUT)
 	ResponseEntity<Void> usersMePut(@ApiParam(value = "", required = true) @RequestBody User user,
+			@AuthenticationPrincipal CustomUserDetails activeUser);
+
+	@ApiOperation(value = "Profile of current user.", notes = "Get the profile picture of current user.", response = StringList.class, authorizations = {
+			@Authorization(value = "basicAuth") }, tags = { "user", })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "The currently logged in user.", response = StringList.class) })
+	@RequestMapping(value = "/users/me/picture", produces = { "application/json" }, consumes = {
+			"application/json" }, method = RequestMethod.GET)
+	ResponseEntity<StringList> usersMePictureGet(
+			@AuthenticationPrincipal CustomUserDetails activeUser);
+
+	@ApiOperation(value = "Update profile picture.", notes = "Update the profile picture of currently signed in user.", response = Void.class, authorizations = {
+			@Authorization(value = "basicAuth") }, tags = { "user", })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Update successful.", response = Void.class),
+			@ApiResponse(code = 400, message = "Bad format.", response = Void.class) })
+	@RequestMapping(value = "/users/me/picture", produces = { "application/json" }, consumes = {
+			"application/json" }, method = RequestMethod.PUT)
+	ResponseEntity<Void> usersMePicturePut(
+			@ApiParam(value = "", required = true) @RequestBody StringList picture,
 			@AuthenticationPrincipal CustomUserDetails activeUser);
 
 	@ApiOperation(value = "Send token for FCM communication.", notes = "Send the token used for FCM communication.", response = Void.class, authorizations = {

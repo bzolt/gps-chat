@@ -1,6 +1,5 @@
 package org.gpschat.web.api;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.gpschat.core.service.ChatService;
@@ -32,7 +31,7 @@ public class ChatApiController implements ChatApi
 	@Override
 	public ResponseEntity<List<ChatMessage>> chatCommonAsUserIdGet(
 			@PathVariable("userId") String userId,
-			@RequestParam(value = "before", required = false) OffsetDateTime before)
+			@RequestParam(value = "before", required = false) Long before)
 	{
 		return new ResponseEntity<>(chatService.messagesBeforeInCommonAsOtherUser(userId, before),
 				HttpStatus.OK);
@@ -74,6 +73,15 @@ public class ChatApiController implements ChatApi
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		chatService.leaveChat(chatId, activeUser.getEntity());
+		try
+		{
+			Thread.sleep(5000);
+		}
+		catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -89,7 +97,7 @@ public class ChatApiController implements ChatApi
 	@Override
 	public ResponseEntity<List<ChatMessage>> chatMessagesAfterGet(
 			@RequestParam(value = "chatId", required = true) String chatId,
-			@RequestParam(value = "dateTime", required = true) OffsetDateTime dateTime,
+			@RequestParam(value = "dateTime", required = true) Long dateTime,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		return new ResponseEntity<>(
@@ -99,7 +107,7 @@ public class ChatApiController implements ChatApi
 	@Override
 	public ResponseEntity<List<ChatMessage>> chatMessagesBeforeGet(
 			@RequestParam(value = "chatId", required = true) String chatId,
-			@RequestParam(value = "dateTime", required = true) OffsetDateTime dateTime,
+			@RequestParam(value = "dateTime", required = true) Long dateTime,
 			@AuthenticationPrincipal CustomUserDetails activeUser)
 	{
 		return new ResponseEntity<>(
